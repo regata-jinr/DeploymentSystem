@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>RegataUpdateManager</PackageId>
+    <Title>RegataUpdateManager</Title>
+    <Version>0.0.1</Version>
+    <Authors>Boris Rumyantsev</Authors>
+    <Company>REGATA, FLNP, JINR</Company>
+    <PackageDescription>RegataUpdateManager</PackageDescription>
+    <Copyright>2020</Copyright>
+    <PackageReleaseNotes>test1</PackageReleaseNotes>
+    <PackageReleaseTitle>test2</PackageReleaseTitle>
+    <RepositoryUrl></RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="octokit" Version="0.40.0" />
+    <PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
+  </ItemGroup>
+
+</Project>
