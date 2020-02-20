@@ -5,60 +5,128 @@ using System.Xml.Linq;
 using System.Linq;
 using Octokit;
 using System.IO;
+using System.Diagnostics;
 using System.Configuration;
 using NLog;
 
-namespace Regata
+namespace Regata.Utilities
 {
-  public class UpdateManager
+
+  public interface IUpdateManager
+  {
+    void CreateRelease();
+    Task UploadReleaseToGithub();
+    Task UpdateCurrentProject();
+
+  }
+  public class UpdateManager : IUpdateManager
   {
     public readonly string ReleaseTag;
     public readonly string ReleaseTitle;
     public readonly string ReleaseNotes;
+    public readonly string RepositoryUrl;
     private readonly XElement XmlProj;
-    public readonly NLog.Logger logger;
-    private readonly Dictionary<int, NLog.LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
-        { 1, NLog.LogLevel.Debug },
-        { 2, NLog.LogLevel.Info },
-        { 3, NLog.LogLevel.Error }
+    public readonly Logger logger;
+    private readonly Dictionary<int, LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
+        { 1, LogLevel.Debug },
+        { 2, LogLevel.Info },
+        { 3, LogLevel.Error }
     };
 
     public UpdateManager(string project = "", int verboseLevel = 1)
     {
-      NLog.GlobalDiagnosticsContext.Set("VerboseMode", VerbosityMode[verboseLevel].Name);
-      logger = NLog.LogManager.GetCurrentClassLogger();
+      GlobalDiagnosticsContext.Set("VerboseMode", VerbosityMode[verboseLevel].Name);
+      logger = LogManager.GetCurrentClassLogger();
       logger.Debug("Initialisation of UpdateManager instance has begun");
 
-      if (File.Exists(project))
-        XmlProj = XElement.Load(project);
-      else
+      if (string.IsNullOrEmpty(project))
       {
-        Console.WriteLine($"Specified csproj file not found '{project}'");
-        throw new FileNotFoundException();
+        string[] projects = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.csproj");
+        if (project.Any())
+          project = projects[0];
+        else
+        {
+          string msg = $"*.csproj file not found in current directory - '{Directory.GetCurrentDirectory()}'";
+          logger.Error(msg);
+          throw new FileNotFoundException(msg);
+        }
       }
+
+      // TODO: should I check csproj file on corruption
+      XmlProj = XElement.Load(project);
 
       try
       {
         ReleaseTag = $"v{XmlProj.Descendants("Version").First().Value}";
         ReleaseTitle = XmlProj.Descendants("PackageReleaseTitle").First().Value;
         ReleaseNotes = XmlProj.Descendants("PackageReleaseNotes").First().Value;
+        RepositoryUrl = XmlProj.Descendants("RepositoryUrl").First().Value;
+        logger.Debug($"{project} has parsed successfully.");
       }
-      catch (InvalidOperationException ioe)
+      catch (InvalidOperationException)
       {
-        Console.WriteLine(ioe.Message);
+        string msg = "One of elements required for release preparation doesn't exist. See list of required elements in readme file of project";
+        Console.WriteLine(msg);
+        logger.Error(msg);
       }
+
+      logger.Debug("Initialisation of UpdateManager instance has completed successfully");
     }
 
-    private void CreateRelease()
+    void IUpdateManager.CreateRelease()
     {
+      logger.Debug("Start of creation release files via squirrel.windows");
+
       var appSettings = ConfigurationManager.AppSettings;
       string squirrel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), appSettings["SquirrelPath"]);
-      var di = new DirectoryInfo(".");
-      string packagePath = di.GetFiles().OrderBy(f => f.LastWriteTime).First().FullName;
+      if (!File.Exists(squirrel))
+      {
+        string msg = $"'{squirrel}' not found";
+        logger.Error(msg);
+        throw new FileNotFoundException(msg);
+      }
 
-      System.Diagnostics.Process.Start(squirrel, $"{appSettings["SquirrelArgs"]} {packagePath}");
+      logger.Debug("squirrel.windows has found");
+
+      var di = new DirectoryInfo(Directory.GetCurrentDirectory());
+      string packagePath = di.GetFiles("*.nupkg").OrderBy(f => f.LastWriteTime).First().FullName;
+
+      if (string.IsNullOrEmpty(packagePath))
+      {
+        string msg = $"*.nupkg file not found in current directory - '{Directory.GetCurrentDirectory()}'";
+        logger.Error(msg);
+        throw new FileNotFoundException(msg);
+      }
+
+      logger.Debug($"{packagePath} has found");
+      string errorMsg = "";
+
+      using (var process = new Process())
+      {
+        process.StartInfo.FileName = squirrel;
+        process.StartInfo.Arguments = $"{appSettings["SquirrelArgs"]} {packagePath}";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardInput = true;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
+        process.Start();
+        logger.Debug($"StandardOutput of process: '{process.StandardOutput.ReadToEnd()}'");
+        logger.Debug($"StandardError of process: '{process.StandardError.ReadToEnd()}'");
+        errorMsg = process.StandardError.ReadToEnd();
+      }
+
+      if (!string.IsNullOrEmpty(errorMsg))
+      {
+        logger.Error(errorMsg);
+        throw new InvalidOperationException(errorMsg);
+      }
+
+      logger.Debug("Creation of release files has completed successfully");
+
     }
-    private async Task UploadReleaseToGithub()
+    async Task IUpdateManager.UploadReleaseToGithub()
     {
       var client = new GitHubClient(new ProductHeaderValue("bdrum"));
       var tokenAuth = new Credentials("token");
@@ -83,6 +151,11 @@ namespace Regata
         };
         var asset = await client.Repository.Release.UploadAsset(latestRelease.Result, assetUpload);
       }
+    }
+
+    async Task IUpdateManager.UpdateCurrentProject()
+    {
+
     }
 
   } //class UpdateManager

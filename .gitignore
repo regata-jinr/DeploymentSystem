@@ -270,3 +270,4 @@ app.config
 SquirrelTemp
 *.diagsession
 .vscode
+Releases
