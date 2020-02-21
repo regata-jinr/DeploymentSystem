@@ -24,9 +24,12 @@ namespace Regata.Utilities
     public readonly string ReleaseTag;
     public readonly string ReleaseTitle;
     public readonly string ReleaseNotes;
+    public readonly string PackageId;
+    public readonly string Version;
     public readonly string RepositoryUrl;
     private readonly XElement XmlProj;
     public readonly Logger logger;
+    private readonly string _path;
     private readonly Dictionary<int, LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
         { 1, LogLevel.Debug },
         { 2, LogLevel.Info },
@@ -39,7 +42,7 @@ namespace Regata.Utilities
       logger = LogManager.GetCurrentClassLogger();
       logger.Debug("Initialisation of UpdateManager instance has begun");
 
-      if (string.IsNullOrEmpty(project))
+      if (string.IsNullOrEmpty(project) || !File.Exists(project))
       {
         string[] projects = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.csproj");
         if (project.Any())
@@ -52,6 +55,8 @@ namespace Regata.Utilities
         }
       }
 
+      _path = Path.GetDirectoryName(project);
+
       // TODO: should I check csproj file on corruption
       XmlProj = XElement.Load(project);
 
@@ -61,6 +66,8 @@ namespace Regata.Utilities
         ReleaseTitle = XmlProj.Descendants("PackageReleaseTitle").First().Value;
         ReleaseNotes = XmlProj.Descendants("PackageReleaseNotes").First().Value;
         RepositoryUrl = XmlProj.Descendants("RepositoryUrl").First().Value;
+        PackageId = XmlProj.Descendants("PackageId").First().Value;
+        Version = XmlProj.Descendants("Version").First().Value;
         logger.Debug($"{project} has parsed successfully.");
       }
       catch (InvalidOperationException)
@@ -88,23 +95,22 @@ namespace Regata.Utilities
 
       logger.Debug("squirrel.windows has found");
 
-      var di = new DirectoryInfo(Directory.GetCurrentDirectory());
-      string packagePath = di.GetFiles("*.nupkg").OrderBy(f => f.LastWriteTime).First().FullName;
+      var package = Path.Combine(_path, @"bin\Release", $"{PackageId}.{Version}.nupkg");
 
-      if (string.IsNullOrEmpty(packagePath))
+      if (!File.Exists(package))
       {
-        string msg = $"*.nupkg file not found in current directory - '{Directory.GetCurrentDirectory()}'";
+        string msg = $"'{package}' file not found.";
         logger.Error(msg);
         throw new FileNotFoundException(msg);
       }
 
-      logger.Debug($"{packagePath} has found");
+      logger.Debug($"{package} has found");
       string errorMsg = "";
 
       using (var process = new Process())
       {
         process.StartInfo.FileName = squirrel;
-        process.StartInfo.Arguments = $"{appSettings["SquirrelArgs"]} {packagePath}";
+        process.StartInfo.Arguments = $"{appSettings["SquirrelArgs"]} {package} -r {_path}\\Releases";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;

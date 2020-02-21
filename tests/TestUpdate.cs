@@ -10,7 +10,7 @@ namespace Regata.Utilities.Test
 
     public UpdateManagerFixture()
     {
-      upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\RegataUpdateManager\RegataUpdateManager.csproj");
+      upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
     }
 
   }
