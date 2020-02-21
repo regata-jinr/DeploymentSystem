@@ -10,7 +10,6 @@ namespace Regata.Utilities
   // TODO: add logs
   // TODO: add usersecrets for token auth
   // TODO: generate static code analysis
-  // FIXME: test doesn't see config file
   // FIXME: Log doesn't work with app.config, only if copy NLog.config to build directory manually
   // FIXME: icon via csproj doesn't include into update, i.e. after build exe file with ico but after setup not
 

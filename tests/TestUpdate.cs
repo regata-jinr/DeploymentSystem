@@ -40,11 +40,10 @@ namespace Regata.Utilities.Test
     public void CreateReleaseFiles()
     {
 
-      Assert.False(Directory.Exists("Releases"));
-      _iupd.CreateRelease();
-      Assert.True(Directory.Exists("Releases"));
+      // Assert.False(Directory.Exists("Releases"));
+      // _iupd.CreateRelease();
+      // Assert.True(Directory.Exists("Releases"));
       // Directory.Delete("Releases");
-
 
     }
 
