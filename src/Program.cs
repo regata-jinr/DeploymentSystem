@@ -5,10 +5,9 @@ namespace Regata.Utilities
   // TODO: upload assest via octokit
   // TODO: update current project method for usage in side projects
   // TODO: add tests
-  // TODO: add logs
+  // TODO: add CommandLineUtils
   // TODO: add usersecrets for token auth
   // TODO: generate static code analysis
-  // FIXME: Log doesn't work with app.config, only if copy NLog.config to build directory manually
   // FIXME: icon via csproj doesn't include into update, i.e. after build exe file with ico but after setup not
 
   class Program

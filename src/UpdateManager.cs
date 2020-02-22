@@ -7,7 +7,6 @@ using Octokit;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using NLog;
 
 namespace Regata.Utilities
 {
@@ -27,21 +26,12 @@ namespace Regata.Utilities
     public readonly string PackageId;
     public readonly string Version;
     public readonly string RepositoryUrl;
-    public readonly Logger logger;
     private readonly string _path;
     private readonly XElement XmlProj;
     private IConfiguration Configuration { get; set; }
-    private readonly IReadOnlyDictionary<int, LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
-        { 1, LogLevel.Debug },
-        { 2, LogLevel.Info },
-        { 3, LogLevel.Error }
-    };
 
     public UpdateManager(string project = "", int verboseLevel = 1)
     {
-      GlobalDiagnosticsContext.Set("VerboseMode", VerbosityMode[verboseLevel].Name);
-      logger = LogManager.GetCurrentClassLogger();
-      logger.Debug("Initialisation of UpdateManager instance has begun");
 
       if (string.IsNullOrEmpty(project) || !File.Exists(project))
       {
@@ -49,11 +39,7 @@ namespace Regata.Utilities
         if (project.Any())
           project = projects[0];
         else
-        {
-          string msg = $"*.csproj file not found in current directory - '{Directory.GetCurrentDirectory()}'";
-          logger.Error(msg);
-          throw new FileNotFoundException(msg);
-        }
+          throw new FileNotFoundException($"*.csproj file not found in current directory - '{Directory.GetCurrentDirectory()}'");
       }
 
       _path = Path.GetDirectoryName(project);
@@ -73,43 +59,26 @@ namespace Regata.Utilities
         PackageId = XmlProj.Descendants("PackageId").First().Value;
         Version = XmlProj.Descendants("Version").First().Value;
         ReleaseTag = $"v{Version}";
-
-        logger.Debug($"{project} has parsed successfully.");
       }
       catch (InvalidOperationException)
       {
-        string msg = "One of elements required for release preparation doesn't exist. See list of required elements in readme file of project";
-        Console.WriteLine(msg);
-        logger.Error(msg);
+        throw new InvalidOperationException("One of elements required for release preparation doesn't exist. See list of required elements in readme file of project");
       }
 
-      logger.Debug("Initialisation of UpdateManager instance has completed successfully");
     }
 
     void IUpdateManager.CreateRelease()
     {
-      logger.Debug("Start of creation release files via squirrel.windows");
-
       string squirrel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), Configuration["Settings:SquirrelPath"]);
-      if (!File.Exists(squirrel))
-      {
-        string msg = $"'{squirrel}' not found";
-        logger.Error(msg);
-        throw new FileNotFoundException(msg);
-      }
 
-      logger.Debug("squirrel.windows has found");
+      if (!File.Exists(squirrel))
+        throw new FileNotFoundException($"'{squirrel}' not found");
 
       var package = Path.Combine(_path, @"bin\Release", $"{PackageId}.{Version}.nupkg");
 
       if (!File.Exists(package))
-      {
-        string msg = $"'{package}' file not found.";
-        logger.Error(msg);
-        throw new FileNotFoundException(msg);
-      }
+        throw new FileNotFoundException($"'{package}' file not found.");
 
-      logger.Debug($"{package} has found");
       string errorMsg = "";
 
       using (var process = new Process())
@@ -123,19 +92,12 @@ namespace Regata.Utilities
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
         process.Start();
-        logger.Debug($"StandardOutput of process: '{process.StandardOutput.ReadToEnd()}'");
-        logger.Debug($"StandardError of process: '{process.StandardError.ReadToEnd()}'");
         errorMsg = process.StandardError.ReadToEnd();
+        Console.WriteLine(process.StandardOutput.ReadToEnd());
       }
 
       if (!string.IsNullOrEmpty(errorMsg))
-      {
-        logger.Error(errorMsg);
         throw new InvalidOperationException(errorMsg);
-      }
-
-      logger.Debug("Creation of release files has completed successfully");
-
     }
     async Task IUpdateManager.UploadReleaseToGithub()
     {
