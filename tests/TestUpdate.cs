@@ -7,10 +7,12 @@ namespace Regata.Utilities.Test
   public class UpdateManagerFixture
   {
     public UpdateManager upd;
+    public readonly string _path;
 
     public UpdateManagerFixture()
     {
       upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
+      _path = @"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo";
     }
 
   }
@@ -39,12 +41,10 @@ namespace Regata.Utilities.Test
     [Fact]
     public void CreateReleaseFiles()
     {
-
-      // Assert.False(Directory.Exists("Releases"));
-      // _iupd.CreateRelease();
-      // Assert.True(Directory.Exists("Releases"));
-      // Directory.Delete("Releases");
-
+      Assert.True(Directory.Exists(_upd._path));
+      Assert.True(Directory.Exists(Path.Combine(_upd._path, "Releases")));
+      _iupd.CreateRelease();
+      Assert.True(File.Exists(Path.Combine(_upd._path, "Releases", $"{_upd.upd.PackageId}-{_upd.upd.Version}-full.nupkg")));
     }
 
   }

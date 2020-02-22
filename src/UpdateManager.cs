@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Xml.Linq;
 using Octokit;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using NLog;
-using System.Xml.Linq;
 
 namespace Regata.Utilities
 {
@@ -31,18 +31,12 @@ namespace Regata.Utilities
     private readonly string _path;
     private readonly XElement XmlProj;
     private IConfiguration Configuration { get; set; }
-    private readonly Dictionary<int, LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
+    private readonly IReadOnlyDictionary<int, LogLevel> VerbosityMode = new Dictionary<int, LogLevel> {
         { 1, LogLevel.Debug },
         { 2, LogLevel.Info },
         { 3, LogLevel.Error }
     };
 
-    Settings _settings;
-    class Settings
-    {
-      public string SquirrelPath { get; set; }
-      public string SquirrelArgs { get; set; }
-    }
     public UpdateManager(string project = "", int verboseLevel = 1)
     {
       GlobalDiagnosticsContext.Set("VerboseMode", VerbosityMode[verboseLevel].Name);
@@ -69,21 +63,17 @@ namespace Regata.Utilities
                       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                       .Build();
 
-      _settings = new Settings();
-
-      Configuration.GetSection("Settings").Bind(_settings);
-
       XmlProj = XElement.Load(project);
 
       try
       {
-
-        ReleaseTag = $"v{XmlProj.Descendants("Version").First().Value}";
         ReleaseTitle = XmlProj.Descendants("PackageReleaseTitle").First().Value;
         ReleaseNotes = XmlProj.Descendants("PackageReleaseNotes").First().Value;
         RepositoryUrl = XmlProj.Descendants("RepositoryUrl").First().Value;
         PackageId = XmlProj.Descendants("PackageId").First().Value;
         Version = XmlProj.Descendants("Version").First().Value;
+        ReleaseTag = $"v{Version}";
+
         logger.Debug($"{project} has parsed successfully.");
       }
       catch (InvalidOperationException)
@@ -100,7 +90,7 @@ namespace Regata.Utilities
     {
       logger.Debug("Start of creation release files via squirrel.windows");
 
-      string squirrel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), _settings.SquirrelPath);
+      string squirrel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), Configuration["Settings:SquirrelPath"]);
       if (!File.Exists(squirrel))
       {
         string msg = $"'{squirrel}' not found";
@@ -125,7 +115,7 @@ namespace Regata.Utilities
       using (var process = new Process())
       {
         process.StartInfo.FileName = squirrel;
-        process.StartInfo.Arguments = $"{_settings.SquirrelArgs} {package} -r {_path}\\Releases";
+        process.StartInfo.Arguments = $"{Configuration["Settings:SquirrelArgs"]} -r {_path}\\Releases --releasify {package}";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;

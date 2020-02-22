@@ -6,7 +6,7 @@
     <StartupObject>Regata.Utilities.Program</StartupObject>
     <PackageId>RegataUpdateManager</PackageId>
     <Title>RegataUpdateManager</Title>
-    <Version>0.4.1</Version>
+    <Version>0.5.0</Version>
     <Authors>Boris Rumyantsev</Authors>
     <Owners>REGATA</Owners>
     <Company>REGATA, FLNP, JINR</Company>
@@ -20,12 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="NLog" Version="4.6.8" />
     <PackageReference Include="octokit" Version="0.40.0" />
-    <PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
     <PackageReference Include="xUnit" Version="2.4.1" />
     <PackageReference Include="xUnit.runner.console" Version="2.4.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

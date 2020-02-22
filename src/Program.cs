@@ -1,7 +1,5 @@
 ﻿using System;
 
-
-
 namespace Regata.Utilities
 {
   // TODO: upload assest via octokit
