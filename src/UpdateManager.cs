@@ -15,7 +15,7 @@ namespace Regata.Utilities
   {
     void CreateRelease();
     Task UploadReleaseToGithub();
-    Task UpdateCurrentProject();
+    // Task UpdateCurrentProject();
 
   }
   public class UpdateManager : IUpdateManager
@@ -29,6 +29,12 @@ namespace Regata.Utilities
     private readonly string _path;
     private readonly XElement XmlProj;
     private IConfiguration Configuration { get; set; }
+
+    private readonly IReadOnlyDictionary<string, string> _defaultSettings = new Dictionary<string, string>
+    {
+        {"SquirrelPath", @".nuget/packages/squirrel.windows/1.9.1/tools/Squirrel.exe"},
+        {"SquirrelArgs", "--no-msi --no-delta"}
+    };
 
     public UpdateManager(string project = "", int verboseLevel = 1)
     {
@@ -45,8 +51,10 @@ namespace Regata.Utilities
       _path = Path.GetDirectoryName(project);
 
       Configuration = new ConfigurationBuilder()
+                      .AddInMemoryCollection(_defaultSettings)
                       .SetBasePath(AppContext.BaseDirectory)
                       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                      .AddUserSecrets<UpdateManager>()
                       .Build();
 
       XmlProj = XElement.Load(project);
@@ -101,35 +109,42 @@ namespace Regata.Utilities
     }
     async Task IUpdateManager.UploadReleaseToGithub()
     {
+      throw new NotImplementedException();
+
       var client = new GitHubClient(new ProductHeaderValue("bdrum"));
-      var tokenAuth = new Credentials("token");
+      var tokenAuth = new Credentials(Configuration["GitHubToken"]);
       client.Credentials = tokenAuth;
 
       var newRelease = new NewRelease(ReleaseTag);
       newRelease.Name = ReleaseTitle;
       newRelease.Body = ReleaseNotes;
 
-      var result = await client.Repository.Release.Create("bdrum", "octokit.net", newRelease);
+      var result = await client.Repository.Release.Create("regata-jinr", PackageId, newRelease);
       Console.WriteLine("Created release id {0}", result.Id);
 
-      var latestRelease = client.Repository.Release.GetLatest("bdrum", "octokit.net");
-
-      using (var archiveContents = File.OpenRead("output.nupkg"))
+      // TODO: wrap to loop with list of files for release
+      // TODO: test proper type for nupkg(.nupkg), exe(Setup.exe), text(RELEASES)
+      var file = "";
+      using (var archiveContents = File.OpenRead(file))
       {
         var assetUpload = new ReleaseAssetUpload()
         {
-          FileName = "Nupkg",
-          ContentType = "package",
+          FileName = Path.GetFileName(file),
+          // ContentType = $"application/exe}",
+          // ContentType = $"application/package}",
+          // ContentType = $"text/plain}",
+          ContentType = $"application/{Path.GetExtension(file)}",
           RawData = archiveContents
         };
-        var asset = await client.Repository.Release.UploadAsset(latestRelease.Result, assetUpload);
+
+        var release = client.Repository.Release.Get("regata-jinr", PackageId, result.Id).Result;
+        await client.Repository.Release.UploadAsset(release, assetUpload);
       }
     }
+    // async Task IUpdateManager.UpdateCurrentProject()
+    // {
 
-    async Task IUpdateManager.UpdateCurrentProject()
-    {
-
-    }
+    // }
 
   } //class UpdateManager
 } //namespace Regata

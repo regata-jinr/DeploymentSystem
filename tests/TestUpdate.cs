@@ -47,5 +47,15 @@ namespace Regata.Utilities.Test
       Assert.True(File.Exists(Path.Combine(_upd._path, "Releases", $"{_upd.upd.PackageId}-{_upd.upd.Version}-full.nupkg")));
     }
 
+    [Fact]
+    public void CreateGitHubRelease()
+    {
+    }
+
+    [Fact]
+    public void UploadReleaseFilesToGithub()
+    {
+    }
+
   }
 }

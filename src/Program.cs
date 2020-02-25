@@ -1,9 +1,13 @@
 ﻿using System;
+using System.IO;
+using Octokit;
 
 namespace Regata.Utilities
 {
   // TODO: upload assest via octokit
   // TODO: update current project method for usage in side projects
+  // TODO: add release dir as parameter of config SquirrelOutPutDir
+  // TODO: add owner of repo as parameter
   // TODO: add tests
   // TODO: add CommandLineUtils
   // TODO: add usersecrets for token auth
@@ -29,6 +33,5 @@ namespace Regata.Utilities
       IUpdateManager upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
       upd.CreateRelease();
     }
-
   }
 }
