@@ -1,17 +1,9 @@
-﻿using System;
-using System.IO;
-using Octokit;
-
-namespace Regata.Utilities
+﻿namespace Regata.Utilities.UpdateManager
 {
-  // TODO: upload assest via octokit
-  // TODO: update current project method for usage in side projects
-  // TODO: add release dir as parameter of config SquirrelOutPutDir
-  // TODO: add owner of repo as parameter
+  // TODO: implement update function
   // TODO: add tests
   // TODO: add CommandLineUtils
-  // TODO: add usersecrets for token auth
-  // TODO: generate static code analysis
+  // TODO: add roslyn static analyzer
   // FIXME: icon via csproj doesn't include into update, i.e. after build exe file with ico but after setup not
 
   class Program
@@ -30,8 +22,8 @@ namespace Regata.Utilities
     // static void Main(string ProjectPath = "", int VerboseMode = 2)
     static void Main(string[] args)
     {
-      IUpdateManager upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
-      upd.CreateRelease();
+      // IUpdateManager upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
+      // upd.CreateRelease();
     }
   }
 }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <StartupObject>Regata.Utilities.Program</StartupObject>
+    <StartupObject>Regata.Utilities.UpdateManager.Program</StartupObject>
     <PackageId>RegataUpdateManager</PackageId>
     <Title>RegataUpdateManager</Title>
     <Version>0.5.0</Version>

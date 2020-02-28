@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Abstractions;
 using System.IO;
 
-namespace Regata.Utilities.Test
+namespace Regata.Utilities.UpdateManager.Test
 {
   public class UpdateManagerFixture
   {
@@ -50,6 +50,7 @@ namespace Regata.Utilities.Test
     [Fact]
     public void CreateGitHubRelease()
     {
+
     }
 
     [Fact]
