@@ -11,14 +11,15 @@ We use:
 * [User-Secrets](https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-3.1&tabs=windows) for keeping secrets
 
 TODO List:
-* to complete design of RegataUpdateManager
+
+* add command line configuration
+* find out is it necessary to add RELEASES file
+* implement update function
 * check dependencies of updated project
   * squirrel.windows
-* check that directory has nuget packages and csproj file
-* upload assets via octokit
-* add tests
-* add user secrets for tokenAuth
-* add usage text and detailed example
+* icon via csproj doesn't include into update, i.e. after build exe file with ico but after setup not
+* test coverage should be 100%
+* add usage description and detailed examples
 
 ## Usage
 
@@ -27,17 +28,20 @@ All data should be specified in your csproj file:
 ~~~xml
 <PropertyGroup>
   <OutputType>Exe</OutputType>
-  <TargetFramework>netcoreapp3.1</TargetFramework>
-  <PackageId>RegataUpdateManager</PackageId>
-  <Title>RegataUpdateManager</Title>
-  <Version>0.0.1</Version>
-  <Authors>Boris Rumyantsev</Authors>
-  <Company>REGATA, FLNP, JINR</Company>
-  <PackageDescription>RegataUpdateManager</PackageDescription>
-  <Copyright>2020</Copyright>
-  <PackageReleaseNotes>test1</PackageReleaseNotes>
-  <PackageReleaseTitle>test2</PackageReleaseTitle>
-  <RepositoryUrl></RepositoryUrl>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>NameOfPackageANDRepository</PackageId>
+    <Title>NameOfPackage</Title>
+    <Version>1.2.7</Version>
+    <Authors>REGATA</Authors>
+    <Owners>Boris Rumyantsev</Owners>
+    <Company>REGATA, FLNP, JINR</Company>
+    <PackageDescription>Smth</PackageDescription>
+    <Copyright>2020</Copyright>
+    <PackageReleaseTitle>Header Test</PackageReleaseTitle>
+    <PackageReleaseNotes>Description Test</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/regata-jinr/TestAutoUpdateRepo</RepositoryUrl>
+    <ApplicationIcon>NameOfPackage.ico</ApplicationIcon>
+    <PackageIcon>NameOfPackage.png</PackageIcon>
 </PropertyGroup>
 ~~~
 

@@ -22,8 +22,9 @@
     // static void Main(string ProjectPath = "", int VerboseMode = 2)
     static void Main(string[] args)
     {
-      // IUpdateManager upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
+      var upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
       // upd.CreateRelease();
+      upd.UploadReleaseToGithub().Wait();
     }
   }
 }

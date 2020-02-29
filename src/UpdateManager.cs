@@ -10,14 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Regata.Utilities.UpdateManager
 {
-  public interface IUpdateManager
-  {
-    void CreateRelease();
-    Task UploadReleaseToGithub();
-    // Task UpdateCurrentProject();
-
-  }
-  public class UpdateManager : IUpdateManager
+  public class UpdateManager
   {
     public readonly string ReleaseTag;
     public readonly string ReleaseTitle;
@@ -31,13 +24,13 @@ namespace Regata.Utilities.UpdateManager
     private readonly GitHubClient _client;
     private IConfiguration Configuration { get; set; }
 
+    // FIXME: in case of setting exists in memory provider, but not in json, it will be empty!
     private readonly IReadOnlyDictionary<string, string> _defaultSettings = new Dictionary<string, string>
     {
         {"SquirrelPath", @".nuget/packages/squirrel.windows/1.9.1/tools/Squirrel.exe"},
         {"SquirrelArgs", "--no-msi --no-delta"},
         {"DefaultReleasesPath", "Releases"},
         {"Branch", "heads/master"}
-
     };
 
     public UpdateManager(string project = "", int verboseLevel = 1)
@@ -87,7 +80,7 @@ namespace Regata.Utilities.UpdateManager
       }
     }
 
-    void IUpdateManager.CreateRelease()
+    public void CreateRelease()
     {
       string squirrel = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), Configuration["Settings:SquirrelPath"]);
 
@@ -120,8 +113,7 @@ namespace Regata.Utilities.UpdateManager
         throw new InvalidOperationException(errorMsg);
     }
 
-    // TODO: check if tag already exist in github
-    async Task IUpdateManager.UploadReleaseToGithub()
+    public async Task UploadReleaseToGithub()
     {
       CommitsMatchingCheck();
       TagAlreadyExistCheck();
@@ -139,6 +131,7 @@ namespace Regata.Utilities.UpdateManager
 
       var rel = new Release(_releasesPath, Configuration["Settings:SquirrelArgs"]);
 
+      // FIXME: something wrong with async upload
       foreach (var asset in rel.Assets)
       {
         Console.WriteLine($"File '{asset.FileName}' has started async upload...");
@@ -154,16 +147,16 @@ namespace Regata.Utilities.UpdateManager
       var lastLocalCommitSha = "";
       using (var process = new Process())
       {
-        process.StartInfo.FileName = "git log";
-        process.StartInfo.Arguments = @"--format=""%H"" -n 1";
+        process.StartInfo.FileName = "git";
+        process.StartInfo.Arguments = @"log --format=""%H"" -n 1";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardInput = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.WorkingDirectory = Directory.GetCurrentDirectory();
+        process.StartInfo.WorkingDirectory = _path;
         process.Start();
-        lastLocalCommitSha = process.StandardOutput.ReadToEnd();
+        lastLocalCommitSha = process.StandardOutput.ReadLine();
       }
 
       if (lastRemoteCommit.Sha != lastLocalCommitSha)

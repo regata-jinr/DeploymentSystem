@@ -1,6 +1,9 @@
 using Xunit;
 using Xunit.Abstractions;
 using System.IO;
+using Octokit;
+using System.Net;
+
 
 namespace Regata.Utilities.UpdateManager.Test
 {
@@ -20,12 +23,12 @@ namespace Regata.Utilities.UpdateManager.Test
   {
     private readonly ITestOutputHelper output;
     public UpdateManagerFixture _upd;
-    public IUpdateManager _iupd;
+    public UpdateManager _updMemb;
 
     public UpdateManagerTest(UpdateManagerFixture upd, ITestOutputHelper output)
     {
       _upd = upd;
-      _iupd = _upd.upd;
+      _updMemb = _upd.upd;
       this.output = output;
     }
 
@@ -43,20 +46,28 @@ namespace Regata.Utilities.UpdateManager.Test
     {
       Assert.True(Directory.Exists(_upd._path));
       Assert.True(Directory.Exists(Path.Combine(_upd._path, "Releases")));
-      _iupd.CreateRelease();
+      _updMemb.CreateRelease();
       Assert.True(File.Exists(Path.Combine(_upd._path, "Releases", $"{_upd.upd.PackageId}-{_upd.upd.Version}-full.nupkg")));
     }
 
     [Fact]
     public void CreateGitHubRelease()
     {
+      using (WebClient client = new WebClient())
+      {
+        string tagHtml = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/tags");
+        string tagAssets = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/latest");
+        Assert.DoesNotContain($"tag/{_updMemb.ReleaseTag}", tagHtml);
+        Assert.DoesNotContain($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssets);
 
+        _updMemb.UploadReleaseToGithub().Wait();
+
+        tagHtml = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/tags");
+        tagAssets = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/latest");
+        Assert.Contains($"tag/{_updMemb.ReleaseTag}", tagHtml);
+        // Assert.Contains($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssets);
+      }
     }
 
-    [Fact]
-    public void UploadReleaseFilesToGithub()
-    {
-    }
-
-  }
-}
+  } // public class UpdateManagerTest : IClassFixture<UpdateManagerFixture>
+} // namespace Regata.Utilities.UpdateManager.Test
