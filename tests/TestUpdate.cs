@@ -1,4 +1,6 @@
 using Xunit;
+using System.Diagnostics;
+using System.Threading;
 using Xunit.Abstractions;
 using System.IO;
 using Octokit;
@@ -19,6 +21,7 @@ namespace Regata.Utilities.UpdateManager.Test
     }
 
   }
+  [TestCaseOrderer("Regata.Utilities.UpdateManager.Test.PriorityOrderer", "RegataUpdateManager")]
   public class UpdateManagerTest : IClassFixture<UpdateManagerFixture>
   {
     private readonly ITestOutputHelper output;
@@ -32,7 +35,7 @@ namespace Regata.Utilities.UpdateManager.Test
       this.output = output;
     }
 
-    [Fact]
+    [Fact, TestPriority(0)]
     public void Initialisation()
     {
       // Assert.Equal(_upd.upd.ReleaseTag, "");
@@ -41,7 +44,7 @@ namespace Regata.Utilities.UpdateManager.Test
       Assert.Equal("https://github.com/regata-jinr/TestAutoUpdateRepo", _upd.upd.RepositoryUrl);
     }
 
-    [Fact]
+    [Fact, TestPriority(1)]
     public void CreateReleaseFiles()
     {
       Assert.True(Directory.Exists(_upd._path));
@@ -50,24 +53,40 @@ namespace Regata.Utilities.UpdateManager.Test
       Assert.True(File.Exists(Path.Combine(_upd._path, "Releases", $"{_upd.upd.PackageId}-{_upd.upd.Version}-full.nupkg")));
     }
 
-    [Fact]
+    [Fact, TestPriority(2)]
     public void CreateGitHubRelease()
     {
       using (WebClient client = new WebClient())
       {
         string tagHtml = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/tags");
-        string tagAssets = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/latest");
+        string tagAssets = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases");
         Assert.DoesNotContain($"tag/{_updMemb.ReleaseTag}", tagHtml);
         Assert.DoesNotContain($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssets);
 
         _updMemb.UploadReleaseToGithub().Wait();
 
-        tagHtml = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/tags");
-        tagAssets = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/latest");
-        Assert.Contains($"tag/{_updMemb.ReleaseTag}", tagHtml);
-        // Assert.Contains($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssets);
       }
     }
 
+    [Fact, TestPriority(3)]
+    public void CheckReleaseExists()
+    {
+      // FIXME: Error Message: System.Net.WebException : The remote server returned an error: (404) Not Found.
+      HttpWebRequest request = WebRequest.Create("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/tag/{_updMemb.ReleaseTag}") as HttpWebRequest;
+
+
+      request.Method = "HEAD";
+      HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+      response.Close();
+
+      Assert.True(response.StatusCode == HttpStatusCode.OK);
+
+      using (WebClient client = new WebClient())
+      {
+        string tagAssetsnew = client.DownloadString("https://github.com/regata-jinr/TestAutoUpdateRepo/releases/latest");
+        Assert.Contains($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssetsnew);
+
+      }
+    }
   } // public class UpdateManagerTest : IClassFixture<UpdateManagerFixture>
 } // namespace Regata.Utilities.UpdateManager.Test

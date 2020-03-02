@@ -61,17 +61,13 @@ namespace Regata.Utilities.UpdateManager
 
       foreach (var file in files)
       {
-        using (var tmpFile = File.OpenRead(file))
+        var assetSetup = new ReleaseAssetUpload()
         {
-          var assetSetup = new ReleaseAssetUpload()
-          {
-            FileName = Path.GetFileName(file),
-            ContentType = _commonTypesExts[Path.GetExtension(file)],
-            RawData = tmpFile
-          };
-          Assets.Add(assetSetup);
-          Console.WriteLine($"'{file}' was added to assets for release.");
-        }
+          FileName = file,
+          ContentType = _commonTypesExts[Path.GetExtension(file)]
+        };
+        Assets.Add(assetSetup);
+        Console.WriteLine($"'{file}' was added to assets for release.");
       }
     }
 

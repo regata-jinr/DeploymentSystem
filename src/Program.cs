@@ -23,8 +23,9 @@
     static void Main(string[] args)
     {
       var upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
-      // upd.CreateRelease();
+      upd.CreateRelease();
       upd.UploadReleaseToGithub().Wait();
     }
+
   }
 }
