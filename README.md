@@ -12,6 +12,7 @@ We use:
 
 TODO List:
 
+* get release info from internal md file
 * add command line configuration
 * find out is it necessary to add RELEASES file
 * implement update function

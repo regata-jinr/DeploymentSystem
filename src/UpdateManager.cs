@@ -35,7 +35,7 @@ namespace Regata.Utilities.UpdateManager
         {"PathToNupkg", @"bin\Release"}
     };
 
-    public UpdateManager(string project = "", int verboseLevel = 1)
+    public UpdateManager(string project = "")
     {
 
       if (string.IsNullOrEmpty(project) || !File.Exists(project))
@@ -180,10 +180,11 @@ namespace Regata.Utilities.UpdateManager
         throw new InvalidOperationException($"Tag '{ReleaseTag}' already exist. Please change version of your assembly before build. Don't forget commit this changes.");
     }
 
-    // async Task IUpdateManager.UpdateCurrentProject()
-    // {
+    public async Task UpdateCurrentProject()
+    {
+      throw new NotImplementedException();
 
-    // }
+    }
 
   } //class UpdateManager
 } //namespace Regata.Utilities.UpdateManager

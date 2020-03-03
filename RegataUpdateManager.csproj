@@ -6,7 +6,7 @@
     <StartupObject>Regata.Utilities.UpdateManager.Program</StartupObject>
     <PackageId>RegataUpdateManager</PackageId>
     <Title>RegataUpdateManager</Title>
-    <Version>0.5.0</Version>
+    <Version>0.9.9</Version>
     <Authors>Boris Rumyantsev</Authors>
     <Owners>REGATA</Owners>
     <Company>REGATA, FLNP, JINR</Company>
