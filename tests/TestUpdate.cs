@@ -19,7 +19,6 @@ namespace Regata.Utilities.UpdateManager.Test
       upd = new UpdateManager(@"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj");
       _path = @"D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo";
     }
-
   }
   [TestCaseOrderer("Regata.Utilities.UpdateManager.Test.PriorityOrderer", "RegataUpdateManager")]
   public class UpdateManagerTest : IClassFixture<UpdateManagerFixture>
@@ -64,11 +63,23 @@ namespace Regata.Utilities.UpdateManager.Test
         Assert.DoesNotContain($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssets);
 
         _updMemb.UploadReleaseToGithub().Wait();
-
       }
     }
 
     [Fact, TestPriority(3)]
+    public void CheckIfReleaseAlreadyExist()
+    {
+      Assert.True(false);
+    }
+
+    [Fact, TestPriority(4)]
+    public void CheckIfCommitsAreDifferent()
+    {
+      Assert.True(false);
+
+    }
+
+    [Fact, TestPriority(5)]
     public void CheckReleaseExists()
     {
       // FIXME: Error Message: System.Net.WebException : The remote server returned an error: (404) Not Found.
@@ -87,6 +98,9 @@ namespace Regata.Utilities.UpdateManager.Test
         Assert.Contains($"download/{_updMemb.ReleaseTag}/{_updMemb.PackageId}-{_updMemb.Version}-full.nupkg", tagAssetsnew);
 
       }
+      //TODO: delete release
     }
+
+
   } // public class UpdateManagerTest : IClassFixture<UpdateManagerFixture>
 } // namespace Regata.Utilities.UpdateManager.Test

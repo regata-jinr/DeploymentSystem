@@ -25,14 +25,13 @@ namespace Regata.Utilities.UpdateManager
     private readonly GitHubClient _client;
     private IConfiguration Configuration { get; set; }
 
-    // FIXME: in case of setting exists in memory provider, but not in json, it will be empty!
     private readonly IReadOnlyDictionary<string, string> _defaultSettings = new Dictionary<string, string>
     {
-        {"SquirrelPath", @".nuget/packages/squirrel.windows/1.9.1/tools/Squirrel.exe"},
-        {"SquirrelArgs", "--no-msi --no-delta"},
-        {"DefaultReleasesPath", "Releases"},
-        {"Branch", "heads/master"},
-        {"PathToNupkg", @"bin\Release"}
+        {"Settings:SquirrelPath", @".nuget/packages/squirrel.windows/1.9.1/tools/Squirrel.exe"},
+        {"Settings:SquirrelArgs", "--no-msi --no-delta"},
+        {"Settings:DefaultReleasesPath", "Releases"},
+        {"Settings:Branch", "heads/master"},
+        {"Settings:PathToNupkg", @"bin\Release"}
     };
 
     public UpdateManager(string project = "")
@@ -64,7 +63,7 @@ namespace Regata.Utilities.UpdateManager
         throw new DirectoryNotFoundException($"Release directory '{_releasesPath}' was not found");
 
       _client = new GitHubClient(new ProductHeaderValue(Configuration["Settings:GitHubRepoOwner"]));
-      var tokenAuth = new Credentials(Configuration["GitHubToken"]);
+      var tokenAuth = new Credentials(Configuration["Settings:GitHubToken"]);
       _client.Credentials = tokenAuth;
 
       try
