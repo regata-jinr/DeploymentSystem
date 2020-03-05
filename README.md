@@ -130,7 +130,6 @@ TestAutoUpdateRepo.csproj:
     <None Include="TestAutoUpdateRepo.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
-
 </Project>
 ~~~
 
@@ -138,10 +137,10 @@ As you can see, project doesn't have any releases yet:
 
 ![](https://sun9-35.userapi.com/c858120/v858120001/19973c/W6l1ApU_dNw.jpg)
 
-Let's run this:
+So if you will run this command:
 
 ~~~powershell
-RegataUpdateManager.exe --file-project D:\GoogleDrive\Job\flnp\dev\tests\TestAutoUpdateRepo\TestAutoUpdateRepo.csproj
+RegataUpdateManager.exe TestAutoUpdateRepo.csproj
 
 Created release 'D:\...\TestAutoUpdateRepo\Releases\Setup.exe' was added to assets for release.
 'D:\...\TestAutoUpdateRepo\Releases\RELEASES' was added to assets for release.
@@ -151,6 +150,6 @@ File 'D:\...\TestAutoUpdateRepo\Releases\Releases\RELEASES' has started async up
 File 'D:\...\TestAutoUpdateRepo\Releases\TestAutoUpdateRepo-1.2.7-full.nupkg' has started async upload ...
 ~~~
 
-And the result will be github release:
+You will see the result on your github release page:
 
 ![](https://sun9-48.userapi.com/c858120/v858120001/199759/6_AQ3XspfEc.jpg)

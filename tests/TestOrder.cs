@@ -4,7 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace Regata.Utilities.UpdateManager.Test
+namespace UpdateManagerTests
 {
 
   public class PriorityOrderer : ITestCaseOrderer
