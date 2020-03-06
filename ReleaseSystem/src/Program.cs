@@ -1,4 +1,4 @@
-﻿namespace Regata.Utilities.UpdateManager
+﻿namespace Regata.Utilities.Deploy.Release
 {
   // TODO: implement update function
   // TODO: add tests
@@ -22,7 +22,7 @@
     // static void Main(string fileProject)
     static void Main(string[] args)
     {
-      var upd = new UpdateManager(args[0]);
+      var upd = new ReleaseFactory(args[0]);
       upd.CreateRelease();
       upd.UploadReleaseToGithub().Wait();
     }

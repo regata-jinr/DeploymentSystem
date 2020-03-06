@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UpdateManager\RegataUpdateManager.csproj" />
+    <ProjectReference Include="..\..\ReleaseSystem\ReleaseSystem.csproj" />
   </ItemGroup>
 
 </Project>

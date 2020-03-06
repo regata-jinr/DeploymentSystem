@@ -4,7 +4,7 @@ using System.IO;
 using System;
 using System.Linq;
 
-namespace Regata.Utilities.UpdateManager
+namespace Regata.Utilities.Deploy.Release
 {
   internal class Release
   {

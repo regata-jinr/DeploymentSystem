@@ -8,9 +8,9 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
-namespace Regata.Utilities.UpdateManager
+namespace Regata.Utilities.Deploy.Release
 {
-  public class UpdateManager
+  public class ReleaseFactory
   {
     public readonly string ReleaseTag;
     public readonly string ReleaseTitle;
@@ -34,7 +34,7 @@ namespace Regata.Utilities.UpdateManager
         {"Settings:PathToNupkg", @"bin\Release"}
     };
 
-    public UpdateManager(string project = "")
+    public ReleaseFactory(string project = "")
     {
 
       if (string.IsNullOrEmpty(project) || !File.Exists(project))
@@ -52,7 +52,7 @@ namespace Regata.Utilities.UpdateManager
                             .AddInMemoryCollection(_defaultSettings)
                             .SetBasePath(AppContext.BaseDirectory)
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                            .AddUserSecrets<UpdateManager>()
+                            .AddUserSecrets<ReleaseFactory>()
                             .Build();
 
       XmlProj = XElement.Load(project);

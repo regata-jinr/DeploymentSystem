@@ -3,19 +3,19 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <StartupObject>Regata.Utilities.UpdateManager.Program</StartupObject>
-    <PackageId>RegataUpdateManager</PackageId>
-    <Title>RegataUpdateManager</Title>
+    <StartupObject>Regata.Utilities.Deploy.Release.Program</StartupObject>
+    <PackageId>ReleaseSystem</PackageId>
+    <Title>ReleaseSystem</Title>
     <Version>0.9.9</Version>
     <Authors>Boris Rumyantsev</Authors>
     <Owners>REGATA</Owners>
     <Company>REGATA, FLNP, JINR</Company>
-    <PackageDescription>RegataUpdateManager</PackageDescription>
+    <PackageDescription>App for auto creation github releases for any package</PackageDescription>
     <Copyright>2020</Copyright>
     <PackageReleaseTitle>Header</PackageReleaseTitle>
     <PackageReleaseNotes>Description</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/regata-jinr/RegataUpdateManager</RepositoryUrl>
-    <IconUrl>https://github.com/regata-jinr/RegataUpdateManager/RegataUpdateManager.ico</IconUrl>
+    <RepositoryUrl>https://github.com/regata-jinr/RegataDeploySystem</RepositoryUrl>
+    <IconUrl>https://github.com/regata-jinr/RegataDeploySystem/ReleaseSystem/ReleaseSystem.ico</IconUrl>
     <UserSecretsId>5978d749-1e07-4b80-af70-e2f0eba03d5f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
