@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UpdateSystem", "UpdateSyste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UpdateSystemTest", "tests\UpdateSystemTest\UpdateSystemTest.csproj", "{D9B6AE58-36F5-4E82-A0C0-44CE8DBD330E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackUpSystem", "BackUpSystem\BackUpSystem.csproj", "{F124C45F-B2B1-433B-A1D7-5EFAAB8FFDB6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackUpSystemTest", "tests\BackUpSystemTest\BackUpSystemTest.csproj", "{C965205B-5A3B-4441-84F2-10251768D7FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{D9B6AE58-36F5-4E82-A0C0-44CE8DBD330E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9B6AE58-36F5-4E82-A0C0-44CE8DBD330E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9B6AE58-36F5-4E82-A0C0-44CE8DBD330E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F124C45F-B2B1-433B-A1D7-5EFAAB8FFDB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F124C45F-B2B1-433B-A1D7-5EFAAB8FFDB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F124C45F-B2B1-433B-A1D7-5EFAAB8FFDB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F124C45F-B2B1-433B-A1D7-5EFAAB8FFDB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C965205B-5A3B-4441-84F2-10251768D7FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C965205B-5A3B-4441-84F2-10251768D7FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C965205B-5A3B-4441-84F2-10251768D7FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C965205B-5A3B-4441-84F2-10251768D7FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
