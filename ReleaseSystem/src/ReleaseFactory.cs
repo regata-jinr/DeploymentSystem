@@ -179,11 +179,5 @@ namespace Regata.Utilities.Deploy.Release
         throw new InvalidOperationException($"Tag '{ReleaseTag}' already exist. Please change version of your assembly before build. Don't forget commit this changes.");
     }
 
-    public async Task UpdateCurrentProject()
-    {
-      throw new NotImplementedException();
-
-    }
-
   } //class UpdateManager
 } //namespace Regata.Utilities.UpdateManager

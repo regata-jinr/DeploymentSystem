@@ -1,8 +1,7 @@
-using Xunit;
+﻿using Xunit;
 using System;
 using Xunit.Abstractions;
 using System.IO;
-using Regata.Utilities.Deploy.Release;
 using Octokit;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +12,9 @@ namespace Regata.Utilities.Deploy.Release.Test
     {
         public ReleaseFactory rf;
         public readonly string _path;
-        public readonly GitHubClient _client;
+        public readonly GitHubClient client;
+        public readonly string owner;
+        public readonly string repo;
         private IConfiguration Configuration { get; set; }
 
         public ReleaseSystemFixture()
@@ -25,14 +26,32 @@ namespace Regata.Utilities.Deploy.Release.Test
                           .AddUserSecrets<ReleaseFactory>()
                           .Build();
 
-            _client = new GitHubClient(new ProductHeaderValue("regata-jinr"));
+            client = new GitHubClient(new ProductHeaderValue("regata-jinr"));
             var tokenAuth = new Credentials(Configuration["Settings:GitHubToken"]);
-            _client.Credentials = tokenAuth;
+            client.Credentials = tokenAuth;
 
+            owner = "regata-jinr";
+            repo = "TestAutoUpdateRepo";
+        }
+
+        public Octokit.Release LatestRelease
+        {
+            get
+            {
+                return client.Repository.Release.GetLatest(owner, repo).Result;
+            }
+        }
+
+        public bool IsAnyReleases
+        {
+            get
+            {
+                return client.Repository.Release.GetAll(owner, repo).Result.Any();
+            }
         }
     }
 
-
+    // FIXME: the order not working!
     [TestCaseOrderer("ReleaseSystemTests.PriorityOrderer", "tests")]
     public class ReleaseSystemTest : IClassFixture<ReleaseSystemFixture>
     {
@@ -72,9 +91,9 @@ namespace Regata.Utilities.Deploy.Release.Test
         }
 
         [Fact, TestPriority(2)]
-        public void NothingInGithubReleasesTest()
+        public async void NothingInGithubReleasesTest()
         {
-            Assert.False(_rf._client.Repository.Release.GetAll(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result.Any());
+            Assert.False(_rf.IsAnyReleases);
         }
 
         [Fact, TestPriority(3)]
@@ -82,13 +101,15 @@ namespace Regata.Utilities.Deploy.Release.Test
         {
             await _rfMemb.UploadReleaseToGithub();
 
-            Assert.True(_rf._client.Repository.Release.GetAll(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result.Any());
+            var rels = await _rf.client.Repository.Release.GetAll(_rf.owner, _rf.repo);
+            
+            Assert.True(_rf.IsAnyReleases);
         }
 
         [Fact, TestPriority(4)]
-        public void CheckReleaseContent()
+        public async void CheckReleaseContent()
         {
-            var rel = _rf._client.Repository.Release.GetLatest(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result;
+            var rel = _rf.LatestRelease;
 
             Assert.Equal(_rfMemb.ReleaseTag, rel.TagName);
             Assert.Equal(_rfMemb.ReleaseTitle, rel.Name);
@@ -104,27 +125,38 @@ namespace Regata.Utilities.Deploy.Release.Test
         [Fact, TestPriority(5)]
         public void CheckIfReleaseAlreadyExist()
         {
-            Assert.Throws<InvalidOperationException>(() => _rfMemb.UploadReleaseToGithub().Wait());
+            Assert.Throws<AggregateException>(() => _rfMemb.UploadReleaseToGithub().Wait());
         }
 
         [Fact, TestPriority(6)]
-        public void ClearAllTest()
+        public async void ClearAllTest()
         {
             var dir = new DirectoryInfo(Path.Combine(_rf._path, "Releases"));
             Assert.True(dir.GetFiles().Any());
 
             foreach (var file in dir.GetFiles())
-                file.Delete(); 
+                file.Delete();
 
             Assert.False(dir.GetFiles().Any());
 
-            Assert.True(_rf._client.Repository.Release.GetAll(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result.Any());
+            Assert.True(_rf.IsAnyReleases);
 
-            var rel = _rf._client.Repository.Release.GetLatest(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result;
+            var rel = _rf.LatestRelease;
+            await _rf.client.Repository.Release.Delete(_rf.owner, _rf.repo, rel.Id);
+            Assert.False(_rf.IsAnyReleases);
 
-            _rf._client.Repository.Release.Delete("regata-jinr", "TestAutoUpdateRepo", rel.Id).Wait();
+            // FIXME: deleting releases are not deleting tags!
+            // looks like we can't delete tags via octokit, but we can do it via cl:
+            /*
+             * ➜ git ls-remote -t
+             * From git@github.com:regata-jinr/TestAutoUpdateRepo.git
+             * 892fb906064f74259a64890e5aa1e70dc41ddce0        refs/tags/v1.2.7
+             * ➜ git push --delete origin "v1.2.7"
+             * To github.com:regata-jinr/TestAutoUpdateRepo.git
+             * - [deleted]         v1.2.7
+             */
 
-            Assert.False(_rf._client.Repository.Release.GetAll(_rf._client.Repository.Get("regata-jinr", "TestAutoUpdateRepo").Id).Result.Any());
+            //var tag = await _rf.client.Repository.GetAllTags(_rf.owner, _rf.repo);
 
         }
 
@@ -134,7 +166,6 @@ namespace Regata.Utilities.Deploy.Release.Test
             Assert.True(false);
 
         }
-
 
     } // public class ReleaseSystemTest : IClassFixture<ReleaseSystemFixture>
 } // namespace Regata.Utilities.ReleaseSystem.Test
